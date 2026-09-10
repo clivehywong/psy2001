@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Action Potential · PSY2001 interactive self-study</title>
+<title>PSY2001 Biological Psychology · interactive self-study</title>
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -33,21 +33,26 @@
   };
   const nav = document.getElementById("nav");
   const groups=[...new Set(Object.values(pages).map(p=>p.group))];
-  nav.innerHTML = groups.map(g=>
-    `<span class="nav-group"><span class="nav-label">${g}</span>`+
-    Object.keys(pages).filter(p=>pages[p].group===g).map(p =>
-      `<a href="#${p}" data-route="${p}">${pages[p].title}</a>`+
-      (p==="/ap/4"?`<span class="nav-break"></span>`:"")).join("")+
-    `</span>`).join("");
+  nav.innerHTML = `<a href="#/" data-route="/" class="nav-home">Home</a>`+
+    groups.map(g=>
+      `<span class="nav-group"><span class="nav-label">${g}</span>`+
+      Object.keys(pages).filter(p=>pages[p].group===g).map(p =>
+        `<a href="#${p}" data-route="${p}">${pages[p].title}</a>`+
+        (p==="/ap/4"?`<span class="nav-break"></span>`:"")).join("")+
+      `</span>`).join("");
 
   async function route(){
-    const h = location.hash.slice(1) || "/ap/3";
-    const pg = pages[h] || pages["/ap/3"];
-    document.getElementById("page-title").textContent = pg.title;
+    const h = location.hash.slice(1) || "/";
+    const pg = pages[h];
+    document.getElementById("page-title").textContent =
+      pg ? pg.title : "PSY2001 · Biological Psychology";
     nav.querySelectorAll("a").forEach(a =>
       a.classList.toggle("active", a.dataset.route === h));
     const app = document.getElementById("app");
-    if (pg.mod) {
+    if (!pg) {
+      const m = await import("./js/home.js");
+      m.render(app);
+    } else if (pg.mod) {
       const m = await import(pg.mod);
       m.render(app);
     } else {

@@ -27,6 +27,26 @@ nav { display: flex; flex-direction: column; gap: 9px; }
 .nav-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .nav-label { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-right: 4px; }
 .nav-break { flex-basis: 100%; height: 0; }
+.nav-home { font-weight: 600; align-self: flex-start; }
+
+/* Home page */
+.home-lead { font-size: 14.5px; color: var(--muted); margin: 2px 0 18px; line-height: 1.55; max-width: 760px; }
+.home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.home-card {
+  display: block; text-decoration: none; color: inherit; background: #fff;
+  border: 1px solid #E2DAC6; border-radius: 14px; padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(60,50,20,.06); transition: box-shadow .15s, transform .15s;
+}
+.home-card:hover { box-shadow: 0 4px 14px rgba(60,50,20,.15); transform: translateY(-2px); }
+.home-tag { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.home-card h2 { margin: 6px 0 6px; font-size: 20px; }
+.home-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.home-list { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.home-list span {
+  font-size: 11.5px; color: var(--muted); background: #F7F4EC;
+  border: 1px solid #E2DAC6; border-radius: 999px; padding: 2px 9px;
+}
+.home-foot { font-size: 12.5px; color: var(--muted); margin: 18px 0 0; line-height: 1.5; }
 nav a {
   font-size: 12.5px;
   text-decoration: none;
