@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PSY2001 Biological Psychology · interactive self-study</title>
-<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/app.css?v=2">
 </head>
 <body>
 <header>
@@ -50,10 +50,10 @@
       a.classList.toggle("active", a.dataset.route === h));
     const app = document.getElementById("app");
     if (!pg) {
-      const m = await import("./js/home.js");
+      const m = await import("./js/home.js?v=2");
       m.render(app);
     } else if (pg.mod) {
-      const m = await import(pg.mod);
+      const m = await import(pg.mod + "?v=2");
       m.render(app);
     } else {
       app.innerHTML = `<div class="card"><p class="placeholder">This page is under construction —
