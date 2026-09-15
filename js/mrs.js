@@ -6,7 +6,7 @@ export const C = {
   protein:"#5C6B7A", naChan:"#B8652A", kChan:"#553A80", pump:"#2F6DB5",
   head:"#F2E4A2", headStroke:"#C9B466", tail:"#C9B466",
   ecf:"#EAF3FB", icf:"#FBF7E6", pore:"#D9CDB4", trace:"#222222",
-  glu:"#3FA34D", gaba:"#D64541", mod:"#C13B8E", ser:"#E0A100",
+  glu:"#3FA34D", gaba:"#D64541", mod:"#C13B8E", ser:"#E0A100", da:"#C9A227",
   gluR:"#2E7D32", gabaR:"#A63636", alwaysOpen:"#8a8a8a"
 };
 export const G = { W:960, H:420, bandY:210, bandT:64, pitch:16, headD:14,
@@ -94,7 +94,8 @@ export function ntShape(x,y,type,r=9){
   const pts={glu:`0,${-r} ${r*0.9},${r*0.7} ${-r*0.9},${r*0.7}`,
              gaba:`0,${r} ${r*0.9},${-r*0.7} ${-r*0.9},${-r*0.7}`,
              mod:`0,${-r} ${r*0.85},0 0,${r} ${-r*0.85},0`,
-             ser:`0,${-r} ${r*0.95},${-r*0.31} ${r*0.59},${r*0.81} ${-r*0.59},${r*0.81} ${-r*0.95},${-r*0.31}`}[type];
+             ser:`0,${-r} ${r*0.95},${-r*0.31} ${r*0.59},${r*0.81} ${-r*0.59},${r*0.81} ${-r*0.95},${-r*0.31}`,
+             da:`0,${-r} ${r*0.87},${-r*0.5} ${r*0.87},${r*0.5} 0,${r} ${-r*0.87},${r*0.5} ${-r*0.87},${-r*0.5}`}[type];
   return `<polygon points="${pts}" transform="translate(${x},${y})" fill="${C[type]}" stroke="rgba(0,0,0,.25)" stroke-width="1" stroke-linejoin="round"/>`;
 }
 export function arrow(x1,y1,x2,y2,color,dashed=false,w=2.5){

@@ -4,56 +4,79 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PSY2001 Biological Psychology · interactive self-study</title>
-<link rel="stylesheet" href="css/app.css?v=2">
+<link rel="stylesheet" href="css/app.css?v=3">
 </head>
 <body>
 <header>
   <div class="course">PSY2001 · Biological Psychology · self-study</div>
-  <h1 id="page-title">The Action Potential</h1>
+  <h1 id="page-title">PSY2001 · Biological Psychology</h1>
   <nav id="nav"></nav>
 </header>
 <main id="app"></main>
 <footer>© Dr. Clive Wong · The Education University of Hong Kong · PSY2001 Biological Psychology self-study. All values illustrative.</footer>
 <script type="module">
+  const G1="Module 1 · The Action Potential", G2="Module 2 · Synapses";
+  // Module 1 keeps numeric routes; Module 2 uses topic slugs so the sequence can follow
+  // Kalat (Module 2.1 Sherrington first, then Module 2.2 chemical events). Nav numbers are
+  // generated from position within the group, not hard-coded.
   const pages = {
-    "/ap/1": { title: "P1 · Wire vs. chain", mod: "./js/ap/page1.js", group: "Module 1 · The Action Potential" },
-    "/ap/2": { title: "P2 · The resting membrane", mod: "./js/ap/page2.js", group: "Module 1 · The Action Potential" },
-    "/ap/3": { title: "P3 · Stimulate & record", mod: "./js/ap/page3.js", group: "Module 1 · The Action Potential" },
-    "/ap/4": { title: "P4 · All-or-none", mod: "./js/ap/page4.js", group: "Module 1 · The Action Potential" },
-    "/ap/5": { title: "P5 · Scrub the action potential", mod: "./js/ap/page5.js", group: "Module 1 · The Action Potential" },
-    "/ap/6": { title: "P6 · Propagation", mod: "./js/ap/page6.js", group: "Module 1 · The Action Potential" },
-    "/ap/7": { title: "P7 · Myelin & speed", mod: "./js/ap/page7.js", group: "Module 1 · The Action Potential" },
-    "/ap/8": { title: "P8 · What pushes a neuron to fire?", mod: "./js/ap/page8.js", group: "Module 1 · The Action Potential" },
-    "/synapses/1": { title: "S1 · Transmission cycle", mod: "./js/syn/syn1.js", group: "Module 2 · Synapses" },
-    "/synapses/2": { title: "S2 · Summation", mod: "./js/syn/syn2.js", group: "Module 2 · Synapses" },
-    "/synapses/3": { title: "S3 · Fast vs slow receptors", mod: "./js/syn/syn3.js", group: "Module 2 · Synapses" },
-    "/synapses/4": { title: "S4 · Reflex delay", mod: "./js/syn/syn4.js", group: "Module 2 · Synapses" },
-    "/synapses/5": { title: "S5 · Blocking reuptake", mod: "./js/syn/syn5.js", group: "Module 2 · Synapses" },
-    "/synapses/6": { title: "S6 · Gap junctions", mod: "./js/syn/syn6.js", group: "Module 2 · Synapses" },
+    "/ap/1": { title: "Wire vs. chain",                 code: "P", mod: "./js/ap/page1.js", group: G1 },
+    "/ap/2": { title: "The resting membrane",           code: "P", mod: "./js/ap/page2.js", group: G1 },
+    "/ap/3": { title: "Stimulate & record",             code: "P", mod: "./js/ap/page3.js", group: G1 },
+    "/ap/4": { title: "All-or-none",                    code: "P", mod: "./js/ap/page4.js", group: G1 },
+    "/ap/5": { title: "Scrub the action potential",     code: "P", mod: "./js/ap/page5.js", group: G1 },
+    "/ap/6": { title: "Propagation",                    code: "P", mod: "./js/ap/page6.js", group: G1 },
+    "/ap/7": { title: "Myelin & speed",                 code: "P", mod: "./js/ap/page7.js", group: G1 },
+    "/ap/8": { title: "What pushes a neuron to fire?",  code: "P", mod: "./js/ap/page8.js", group: G1 },
+
+    "/synapses/reflex":          { title: "Reflex delay",                        code: "S", mod: "./js/syn/syn4.js",  group: G2 },
+    "/synapses/summation":       { title: "Summation",                           code: "S", mod: "./js/syn/syn2.js",  group: G2 },
+    "/synapses/transmission":    { title: "Transmission cycle",                  code: "S", mod: "./js/syn/syn1.js",  group: G2 },
+    "/synapses/types":           { title: "Transmitter types & synthesis",       code: "S", mod: "./js/syn/types.js", group: G2 },
+    "/synapses/receptors":       { title: "Fast vs slow receptors",              code: "S", mod: "./js/syn/syn3.js",  group: G2 },
+    "/synapses/neuromodulators": { title: "Neuromodulators & volume transmission",code:"S", mod: "./js/syn/neuromod.js", group: G2 },
+    "/synapses/agonists":        { title: "Agonists & antagonists",              code: "S", mod: "./js/syn/agonist.js", group: G2 },
+    "/synapses/reuptake":        { title: "Blocking reuptake",                   code: "S", mod: "./js/syn/syn5.js",  group: G2 },
+    "/synapses/gap-junctions":   { title: "Gap junctions",                       code: "S", mod: "./js/syn/syn6.js",  group: G2 },
   };
-  const nav = document.getElementById("nav");
   const groups=[...new Set(Object.values(pages).map(p=>p.group))];
+  const label={};
+  groups.forEach(g=>{
+    Object.keys(pages).filter(k=>pages[k].group===g).forEach((k,i)=>{
+      label[k]=`${pages[k].code}${i+1} · ${pages[k].title}`;
+    });
+  });
+  const groupMeta={
+    [G1]: { lecture:"Lecture 2", desc:"How a neuron carries a signal: the resting membrane, the spike itself, and how it travels down the axon." },
+    [G2]: { lecture:"Lecture 3", desc:"How one neuron passes the signal on — Sherrington's evidence, summation, transmission, receptors, modulator chemistry, drugs, and gap junctions." },
+  };
+
+  const nav = document.getElementById("nav");
   nav.innerHTML = `<a href="#/" data-route="/" class="nav-home">Home</a>`+
     groups.map(g=>
       `<span class="nav-group"><span class="nav-label">${g}</span>`+
-      Object.keys(pages).filter(p=>pages[p].group===g).map(p =>
-        `<a href="#${p}" data-route="${p}">${pages[p].title}</a>`+
-        (p==="/ap/4"?`<span class="nav-break"></span>`:"")).join("")+
+      Object.keys(pages).filter(k=>pages[k].group===g).map(k =>
+        `<a href="#${k}" data-route="${k}">${label[k]}</a>`+
+        (k==="/ap/4"?`<span class="nav-break"></span>`:"")).join("")+
       `</span>`).join("");
 
   async function route(){
     const h = location.hash.slice(1) || "/";
     const pg = pages[h];
     document.getElementById("page-title").textContent =
-      pg ? pg.title : "PSY2001 · Biological Psychology";
+      pg ? label[h] : "PSY2001 · Biological Psychology";
     nav.querySelectorAll("a").forEach(a =>
       a.classList.toggle("active", a.dataset.route === h));
     const app = document.getElementById("app");
     if (!pg) {
-      const m = await import("./js/home.js?v=2");
-      m.render(app);
+      const m = await import("./js/home.js?v=3");
+      m.render(app, groups.map(g=>({
+        name: g, lecture: groupMeta[g].lecture, desc: groupMeta[g].desc,
+        href: "#"+Object.keys(pages).find(k=>pages[k].group===g),
+        items: Object.keys(pages).filter(k=>pages[k].group===g).map(k=>({ label: label[k], href: "#"+k })),
+      })));
     } else if (pg.mod) {
-      const m = await import(pg.mod + "?v=2");
+      const m = await import(pg.mod + "?v=3");
       m.render(app);
     } else {
       app.innerHTML = `<div class="card"><p class="placeholder">This page is under construction —

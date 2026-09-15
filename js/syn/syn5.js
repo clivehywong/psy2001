@@ -1,16 +1,18 @@
-import { C, vmInside, ionShape, ntShape, arrow, tag, channel, along } from "../mrs.js";
-import { CS, bilayerPath, transporter, vesicle } from "../syn.js";
+import { C, vmInside, ntShape, arrow, tag, along } from "../mrs.js";
+import { CS, bilayerPath, transporter, vesicle, metabo } from "../syn.js";
 
-// S5 · Blocking reuptake (Kalat Fig 2.16, Table 2.3).
-// Normally the transporter pulls transmitter back into the terminal (reuptake):
-// the cleft clears and the signal ends. Cocaine / methylphenidate (Ritalin) block
-// the transporter, so transmitter lingers and the postsynaptic effect is prolonged.
+// S5 · Blocking reuptake — dopamine (Kalat Fig 2.16, Table 2.3).
+// A transporter normally pulls transmitter back into the terminal (reuptake): the
+// cleft clears, the signal switches off. Stimulant drugs — cocaine, methylphenidate
+// (Ritalin), amphetamine — block the *dopamine* transporter, so dopamine lingers and
+// the effect is prolonged. (Monoamine reuptake is slower than glutamate/GABA, and
+// dopamine receptors are metabotropic and spread out, not right next to the release.)
 const TMAX=7, N_FULL=12, N_LOW=4;
 
 const SCEN=[
-  { id:"normal",     label:"Normal reuptake",        note:"The transporter ferries transmitter back into the terminal — the cleft clears, the signal switches off, and the transmitter is recycled." },
-  { id:"blocked",    label:"Cocaine / Ritalin",      note:"The drug docks on the transporter and blocks it. Transmitter lingers in the cleft, so the postsynaptic receptors keep firing — a <b>prolonged</b> effect." },
-  { id:"withdrawal", label:"Hours later: withdrawal",note:"With reuptake blocked, enzymes broke down the surplus and the terminal couldn't replenish. Stores are low, so a smaller release gives a <b>weaker</b> signal — the withdrawal dip." },
+  { id:"normal",     label:"Normal reuptake",        note:"The <b>dopamine transporter</b> ferries dopamine back into the terminal — the cleft clears, the signal switches off, and the transmitter is recycled." },
+  { id:"blocked",    label:"Cocaine / Ritalin",      note:"The drug docks on the striatal <b>dopamine transporter</b> and blocks it (Fig 2.16). Dopamine lingers in the cleft, so the receptors keep signalling — a <b>prolonged</b> effect." },
+  { id:"withdrawal", label:"Hours later: withdrawal",note:"With reuptake blocked, enzymes broke down the surplus and the terminal couldn't replenish. Dopamine stores are low, so a smaller release gives a <b>weaker</b> signal — the withdrawal dip." },
 ];
 
 const SLOTS=(()=>{
@@ -45,16 +47,16 @@ function ntParticles(t,id){
   for(let i=0;i<N;i++){
     if(i>=released) break;
     const [sx,sy]=SLOTS_SORTED[i];
-    if(!times){ out+=ntShape(sx,sy,"glu",5); continue; }
+    if(!times){ out+=ntShape(sx,sy,"da",5); continue; }
     const c=times[i];
     if(t>c+TRAVEL) continue;
-    if(t<c){ out+=ntShape(sx,sy,"glu",5); continue; }
+    if(t<c){ out+=ntShape(sx,sy,"da",5); continue; }
     const u=(t-c)/TRAVEL;
-    if(u<0.5){ out+=ntShape(...along([[sx,sy],[480,174]],u/0.5),"glu",5); }
+    if(u<0.5){ out+=ntShape(...along([[sx,sy],[480,174]],u/0.5),"da",5); }
     else{
       const op=1-(u-0.5)/0.5;
       const pos=along([[480,174],[480,150],[480,122]],(u-0.5)/0.5);
-      out+=`<g opacity="${op.toFixed(2)}">${ntShape(pos[0],pos[1],"glu",5)}</g>`;
+      out+=`<g opacity="${op.toFixed(2)}">${ntShape(pos[0],pos[1],"da",5)}</g>`;
     }
   }
   return out;
@@ -64,7 +66,6 @@ function sceneSVG(t,id){
   const prof=profile(t,id);
   const blocked=id==="blocked";
   const collecting=!blocked && prof>0.6 && t>0.4;
-  const open=prof>1.5;
   let inner=`<rect x="380" y="30" width="240" height="120" fill="${vmInside(-70)}"/>`+
     `<rect x="380" y="150" width="240" height="40" fill="${C.ecf}"/>`+
     `<rect x="380" y="190" width="240" height="60" fill="${vmInside(-70)}"/>`+
@@ -72,17 +73,17 @@ function sceneSVG(t,id){
     bilayerPath([[378,190],[622,190]],0.2);
 
   const empty=id==="withdrawal";
-  inner+=vesicle(415,86,"glu",15,0.2,false,false)+vesicle(480,80,"glu",15,0.2,false,false)+
-    vesicle(545,86,"glu",15,0.2,false,empty);
+  inner+=vesicle(415,86,"da",15,0.2,false,false)+vesicle(480,80,"da",15,0.2,false,false)+
+    vesicle(545,86,"da",15,0.2,false,empty);
   if(empty) inner+=tag(480,52,"recycled stores low","#B03A2E");
 
   inner+=`<g transform="translate(480,150) scale(0.4) translate(-480,-150)">${transporter(480,150,blocked?"blocked":(collecting?"collecting":"closed"))}</g>`;
   if(collecting) inner+=arrow(480,184,480,168,CS.transporter);
   if(blocked) inner+=tag(556,132,"cocaine / Ritalin",CS.drug);
 
-  [440,520].forEach(rx=>{
-    inner+=`<g transform="translate(${rx},190) scale(0.24) translate(${-rx},-210)">${channel(rx,CS.gluR,open?"open":"closed",{badge:"R"})}</g>`;
-    if(open) for(let j=0;j<2;j++) inner+=ionShape(rx-4+j*8,198+j*10,"na",3);
+  [405,555].forEach(rx=>{
+    const st=prof>1.5?"signaling":prof>0.5?"bound":"rest";
+    inner+=`<g transform="translate(${rx},190) scale(0.26) translate(${-rx},-210)">${metabo(rx,210,st)}</g>`;
   });
 
   inner+=ntParticles(t,id);
@@ -113,15 +114,15 @@ function traceSVG(t,id){
 function statusHTML(t,id){
   if(t<=0) return "At rest. Press <b>Release transmitter</b> to run the scenario.";
   if(id==="blocked"){
-    if(t<0.6) return `<b>${t.toFixed(1)} s:</b> transmitter is released into the cleft — and the drug is already sitting on the transporter.`;
-    return `<b>${t.toFixed(1)} s:</b> the transporter is blocked, so transmitter <b>lingers</b> in the cleft. The receptors keep firing (Na⁺ still entering) — the signal is <b>prolonged</b>.`;
+    if(t<0.6) return `<b>${t.toFixed(1)} s:</b> dopamine is released into the cleft — and the drug is already sitting on the transporter.`;
+    return `<b>${t.toFixed(1)} s:</b> the transporter is blocked, so dopamine <b>lingers</b> in the cleft. With no reuptake to switch it off, the metabotropic receptors keep signalling — the effect is <b>prolonged</b>.`;
   }
   if(id==="withdrawal"){
-    if(t<0.6) return `<b>${t.toFixed(1)} s:</b> stores are depleted, so only a <b>small</b> release arrives in the cleft.`;
+    if(t<0.6) return `<b>${t.toFixed(1)} s:</b> stores are depleted, so only a <b>small</b> release of dopamine arrives in the cleft.`;
     return `<b>${t.toFixed(1)} s:</b> the small release is cleared quickly — a <b>weak, brief</b> response. With less dopamine than usual, the user is in withdrawal.`;
   }
-  if(t<0.6) return `<b>${t.toFixed(1)} s:</b> transmitter is released into the cleft and the receptors begin to respond.`;
-  return `<b>${t.toFixed(1)} s:</b> the transporter pulls transmitter back into the terminal — the cleft clears, the receptors stop, and the response ends.`;
+  if(t<0.6) return `<b>${t.toFixed(1)} s:</b> dopamine is released and diffuses to the receptors, which begin to signal.`;
+  return `<b>${t.toFixed(1)} s:</b> the dopamine transporter pulls transmitter back into the terminal — the cleft clears, the receptors stop, and the response ends.`;
 }
 
 export function render(el){
@@ -140,12 +141,13 @@ export function render(el){
         <p class="p3-caption" id="s5-note"></p>
       </div>
     </div>
-    <p class="p3-caption">After a transmitter activates its receptor, a <b>transporter</b> protein pulls it
-      back into the presynaptic cell — <b>reuptake</b>. That clears the cleft, switches the signal off, and
-      recycles the molecule. <b>Stimulant drugs</b> — amphetamine and cocaine, and methylphenidate (Ritalin),
-      which acts the same way — <b>block the transporter</b>, so transmitter lingers and the effect lasts far
-      longer. Later, when the surplus has been broken down and stores run low, the user dips below normal —
-      withdrawal.</p>
+    <p class="p3-caption">Here the transmitter is <b>dopamine</b> — and notice its receptors are
+      <b>metabotropic</b> and <b>spread out</b>, not tucked right beside the release site (unlike
+      glutamate/GABA). A <b>transporter</b> normally pulls dopamine back into the presynaptic cell —
+      <b>reuptake</b> — which clears the cleft and switches the signal off. <b>Stimulant drugs</b>
+      (amphetamine, cocaine, and methylphenidate/Ritalin) <b>block the dopamine transporter</b>, so
+      dopamine lingers and the effect lasts far longer. Later, when the surplus has been broken down and
+      stores run low, the user dips below normal — withdrawal.</p>
   </div>`;
 
   const sceneEl=el.querySelector("#s5-scene"), traceEl=el.querySelector("#s5-trace");

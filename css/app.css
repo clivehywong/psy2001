@@ -192,3 +192,8 @@ footer {
 /* Page S6 */
 #s6-scene { max-width: 780px; margin: 0 auto; }
 #s6-scene svg { background: var(--parchment); border-radius: 10px; }
+
+/* New Module 2 pages: transmitter types / neuromodulators / agonists */
+#st-scene, #nm-scene, #ag-scene { max-width: 820px; margin: 0 auto; }
+#st-scene svg, #nm-scene svg, #ag-scene svg { background: var(--parchment); border-radius: 10px; }
+.stim-btns button.active { background: var(--accent); color: #fff; }
